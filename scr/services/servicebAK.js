@@ -80,7 +80,7 @@ class Battery extends Service{
 
     }
 
-    enableService(){
+    enableService(cb){
         if(this.service_needs_to_be_switched_on) {
             this.handles[this.config_uuid].write(Buffer.from(['0x01']), false, function (error) {
                 if (!error) {
@@ -91,7 +91,7 @@ class Battery extends Service{
                 }
             }.bind(this));
         }
-
+        cb();
     }
 
     convertData(data){
@@ -103,11 +103,11 @@ class Battery extends Service{
        console.log('battery level is now: ', data + '%');
     }
 
-    subscribe(){
+    subscribe(cb){
         console.log('Subscription ',this.data_uuid);
         this.handles[this.data_uuid].subscribe((error) => {
             console.log('Subscribed to ' + this.name);
-
+            cb();
             if(error){
                 console.log('ERRROR ',error);
 
@@ -116,12 +116,12 @@ class Battery extends Service{
         });
     }
 
-    addCharacteristics(characteristics){
+    addCharacteristics(characteristics, cb){
         for(let i in characteristics){
             console.log('  ' + i + ' uuid: ' + characteristics[i].uuid);
             this.add_characteristic_handle(characteristics[i].uuid, characteristics[i]);
         }
-
+        cb();
     }
 
 
@@ -153,7 +153,7 @@ class Temp extends Service{
 
     }
 
-    enableService(){
+    enableService(cb){
         if(this.service_needs_to_be_switched_on) {
             //console.log('this.config_uuid: ',this.config_uuid);
             //console.log('this.handles ',this.handles);
@@ -161,7 +161,7 @@ class Temp extends Service{
             this.handles[this.config_uuid].write(Buffer.from(['0x01']), false, function (error) {
                 if (!error) {
                     console.log('Enabled  ' + this.name);
-
+                    cb();
                 } else {
                     console.log('Error');
                 }
@@ -186,10 +186,11 @@ class Temp extends Service{
         console.log('ambientTemperature = '+ ambientTemperature + '  objectTemperature = ' +objectTemperature);
     }
 
-    subscribe(){
+    subscribe(cb){
         console.log('Subscription ',this.data_uuid);
         this.handles[this.data_uuid].subscribe((error) => {
             console.log('Subscribed to ' + this.name);
+            cb();
             if(error){
                 console.log('ERRROR ',error);
 
@@ -198,10 +199,11 @@ class Temp extends Service{
         });
     }
 
-    addCharacteristics(characteristics){
+    addCharacteristics(characteristics,cb){
         for(let i in characteristics){
             this.add_characteristic_handle(characteristics[i].uuid, characteristics[i]);
         }
+        cb();
     }
 
 }
@@ -232,7 +234,7 @@ class Luxometer extends Service{
 
     }
 
-    enableService(){
+    enableService(cb){
         if(this.service_needs_to_be_switched_on) {
            // console.log('this.config_uuid: ',this.config_uuid);
           //  console.log('this.handles ',this.handles);
@@ -240,7 +242,7 @@ class Luxometer extends Service{
             this.handles[this.config_uuid].write(Buffer.from(['0x01']), false, function (error) {
                 if (!error) {
                     console.log('Enabled  ' + this.name);
-
+                    cb();
                 } else {
                     console.log('Error');
                 }
@@ -270,11 +272,11 @@ class Luxometer extends Service{
         console.log('LUX IS 0000>>> = '+ lux);
     }
 
-    subscribe(){
+    subscribe(cb){
         console.log('Subscription ',this.data_uuid);
         this.handles[this.data_uuid].subscribe((error) => {
             console.log('Subscribed to ' + this.name);
-
+            cb();
             if(error){
                 console.log('ERRROR ',error);
 
@@ -284,11 +286,11 @@ class Luxometer extends Service{
         });
     }
 
-    addCharacteristics(characteristics){
+    addCharacteristics(characteristics,cb){
         for(let i in characteristics){
             this.add_characteristic_handle(characteristics[i].uuid, characteristics[i]);
         }
-
+        cb();
     }
 
 }
