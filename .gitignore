@@ -41,3 +41,4 @@ jspm_packages
 
 #IDE stuff
 .idea
+/test
