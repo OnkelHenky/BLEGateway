@@ -1,7 +1,8 @@
 {
-  "name": "$package_name$",
+  "name": "BLEGateway_JSPort",
   "version": "0.0.1",
   "dependencies": {
-    $END$
+    "express": "^4.15.4",
+    "noble": "^1.8.1"
   }
 }
