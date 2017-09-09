@@ -5,11 +5,11 @@ const Service = require('../services/service').services;
  */
 class TISensortag extends BLEInterface{
 
-    constructor (address){
+    constructor (address,values){
         super(address);
-        this.addService('180f', new Service.Battery('Battery'));
-        this.addService('f000aa0004514000b000000000000000', new Service.Temperature('Temperature'));
-        this.addService('f000aa7004514000b000000000000000', new Service.Luxometer('Luxometer'));
+        this.addService('180f', new Service.Battery('Battery',values));
+        this.addService('f000aa0004514000b000000000000000', new Service.Temperature('Temperature',values));
+        this.addService('f000aa7004514000b000000000000000', new Service.Luxometer('Luxometer',values));
     }
 
 

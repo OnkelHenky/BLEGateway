@@ -8,9 +8,10 @@ let Service = {};
 
 class GenericService {
 
-    constructor(name){
+    constructor(name,values){
         this.name = name;
         this.handles= [];
+        this.values = values
     }
 
     get name() {
@@ -77,8 +78,8 @@ class GenericService {
  */
 class Battery extends GenericService{
 
-    constructor(name){
-        super(name);
+    constructor(name,values){
+        super(name,values);
         this.service_uuid = '180f',
         this.config_uuid = null,
         this.data_uuid = '2a19',
@@ -95,6 +96,7 @@ class Battery extends GenericService{
     read(data, isNotification){
        data = this.convertData(data);
        console.log('battery level is now: ', data + '%');
+       this.values[this._name] = data
     }
 
 
@@ -105,8 +107,8 @@ class Battery extends GenericService{
  */
 class Temperature extends GenericService{
 
-    constructor(name){
-        super(name);
+    constructor(name,values){
+        super(name,values);
         this.service_uuid = 'f000aa0004514000b000000000000000',
         this.config_uuid = 'f000aa0204514000b000000000000000',
         this.data_uuid = 'f000aa0104514000b000000000000000',
@@ -127,6 +129,7 @@ class Temperature extends GenericService{
         }
         let [ambientTemperature, objectTemperature] = this.convertData(data);
         console.log('ambientTemperature = '+ ambientTemperature + '  objectTemperature = ' +objectTemperature);
+        this.values[this._name] = 'ambientTemperature = '+ ambientTemperature + '  objectTemperature = ' +objectTemperature
     }
 
 }
@@ -136,8 +139,8 @@ class Temperature extends GenericService{
  */
 class Luxometer extends GenericService{
 
-    constructor(name){
-        super(name);
+    constructor(name,values){
+        super(name,values);
         this.service_uuid = 'f000aa7004514000b000000000000000',
         this.config_uuid = 'f000aa7204514000b000000000000000',
         this.data_uuid = 'f000aa7104514000b000000000000000',
@@ -158,6 +161,7 @@ class Luxometer extends GenericService{
         }
         let convertedLuxValua = this.convertData(data);
         console.log('Lux value : '+ convertedLuxValua);
+        this.values[this._name] = convertedLuxValua;
     }
 
 }
