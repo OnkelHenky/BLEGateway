@@ -51,7 +51,7 @@ class BLEInterface {
      */
     enableBLECommunication(){
 
-        //  Scan
+        // -> Scan
         this.ble_lib.on('stateChange', (state) => {
             if (state === 'poweredOn') {
                 let serviceUUIDs = []; // default: [] => all
@@ -63,13 +63,13 @@ class BLEInterface {
         });
 
 
-        // Discover
+        // ->  Discover
         this.ble_lib.on('discover', (peripheral) => {
             if (peripheral.address.toUpperCase() === this.address.toUpperCase()) {
                 console.log('Target device found, establish connection');
                 this._ble_lib.stopScanning();
                 this.peripheral = peripheral;
-                // Connect
+                // ->  Connect
             this.peripheral.on('connect', () => {
                     console.log('Connected to: ' + this.peripheral.advertisement.localName);
                     this.enableServices(this.peripheral);
@@ -110,8 +110,8 @@ class BLEInterface {
 
                     let characteristicHandle = characteristics[0];
 
-                    characteristicHandle.read(()=> {});
                     characteristicHandle.on('read', currentService.read.bind(currentService));
+                    characteristicHandle.read(()=> {});
 
                 });
             }
