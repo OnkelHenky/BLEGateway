@@ -90,8 +90,8 @@ class BLEInterface {
 
     /**
      * Add e service for this BLE Device
-     * @param service_id, the UUID of the Service
-     * @param service, the Service object.
+     * @param service_id, the UUID of the GenericService
+     * @param service, the GenericService object.
      */
     addService(service_id, service){
         //Test if a service for the given ID was already registered.
@@ -100,6 +100,18 @@ class BLEInterface {
         }else{
             throw new aux.BLE_Exception('Error, service with ID "'+service_id+'" already exits.');
         }
+    }
+
+    /**
+     * Get a array with all UUIDS, registered to a BLE device
+     * @returns {Array}
+     */
+    getServiceUUIDs(){
+        let _allUUIDS =[];
+        for (var i in this.services){
+            _allUUIDS.push(this.services[i].service_uuid)
+        }
+        return _allUUIDS
     }
 
     /**

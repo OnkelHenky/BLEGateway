@@ -2,41 +2,11 @@
  * Created by alex on 10.04.17.
  */
 
-var app = {};
 
-app.sensortag = {};
-
-// UUIDs for movement services and characteristics.
-app.sensortag.MOVEMENT_SERVICE = 'f000aa80-0451-4000-b000-000000000000';
-app.sensortag.MOVEMENT_DATA = 'f000aa81-0451-4000-b000-000000000000';
-app.sensortag.MOVEMENT_CONFIG = 'f000aa82-0451-4000-b000-000000000000';
-app.sensortag.MOVEMENT_PERIOD = 'f000aa83-0451-4000-b000-000000000000';
-app.sensortag.MOVEMENT_NOTIFICATION = '00002902-0000-1000-8000-00805f9b34fb';
+let Service = {};
 
 
-app.sensortag.IO_SERVICE = 'f000aa64-0451-4000-b000-000000000000';
-app.sensortag.IO_CONFIG = 'f000aa66-0451-4000-b000-000000000000';
-app.sensortag.IO_DATA = 'f000aa65-0451-4000-b000-000000000000';
-
-app.sensortag.BAROMETER_SERVICE = 'f000aa40-0451-4000-b000-000000000000';
-app.sensortag.BAROMETER_DATA = 'f000aa41-0451-4000-b000-000000000000';
-app.sensortag.BAROMETER_CONFIG = 'f000aa42-0451-4000-b000-000000000000';
-app.sensortag.BAROMETER_CALIBRATION = 'f000aa43-0451-4000-b000-000000000000';
-app.sensortag.BAROMETER_PERIOD = 'f000aa44-0451-4000-b000-000000000000';
-app.sensortag.BAROMETER_NOTIFICATION = '00002902-0000-1000-8000-00805f9b34fb';
-
-
-app.sensortag.LUX_SERVICE = 'f000aa7004514000b000000000000000';
-app.sensortag.LUX_SERVICE_DATA = 'f000aa7104514000b000000000000000';
-
-
-app.sensortag.TEMP_SERVICE = 'f000aa0004514000b000000000000000';
-app.sensortag.TEMP_SERVICE_DATA = 'f000aa0104514000b000000000000000';
-
-let Services = {};
-
-
-class Service {
+class GenericService {
 
     constructor(name){
         this.name = name;
@@ -85,14 +55,11 @@ class Service {
 
 
     subscribe(){
-        console.log('Subscription ',this.data_uuid);
         this.handles[this.data_uuid].subscribe((error) => {
             console.log('Subscribed to ' + this.name);
             if(error){
                 console.log('ERRROR ',error);
-
             }
-
         });
     }
 
@@ -105,7 +72,10 @@ class Service {
     }
 }
 
-class Battery extends Service{
+/**
+ *
+ */
+class Battery extends GenericService{
 
     constructor(name){
         super(name);
@@ -130,8 +100,10 @@ class Battery extends Service{
 
 }
 
-
-class Temperature extends Service{
+/**
+ *
+ */
+class Temperature extends GenericService{
 
     constructor(name){
         super(name);
@@ -159,8 +131,10 @@ class Temperature extends Service{
 
 }
 
-
-class Luxometer extends Service{
+/**
+ *
+ */
+class Luxometer extends GenericService{
 
     constructor(name){
         super(name);
@@ -172,47 +146,24 @@ class Luxometer extends Service{
     }
 
     convertData(data){
-        var rawLux = data.readUInt16LE(0);
-
-        var exponent = (rawLux & 0xF000) >> 12;
-        var mantissa = (rawLux & 0x0FFF);
-
-        var flLux = mantissa * Math.pow(2, exponent) / 100.0;
-        return flLux;
+        let rawData = data.readUInt16LE(0);
+        let exponent = (rawData & 0xF000) >> 12;
+        let mantissa = (rawData & 0x0FFF);
+        return mantissa * Math.pow(2, exponent) / 100.0;
     }
 
     read(data, isNotification){
         if(isNotification){
-          //  console.log('Notification received')
+            //console.log('Notification received')
         }
-        let lux = this.convertData(data);
-        console.log('LUX IS 0000>>> = '+ lux);
+        let convertedLuxValua = this.convertData(data);
+        console.log('Lux value : '+ convertedLuxValua);
     }
 
 }
 
-Services.Battery = Battery;
-Services.Temperature = Temperature;
-Services.Luxometer = Luxometer;
+Service.Battery = Battery;
+Service.Temperature = Temperature;
+Service.Luxometer = Luxometer;
 
-module.exports.services = Services;
-
-/*  peripheral.discoverServices(['180f'], function(error, services) {
-      var deviceInformationService = services[0];
-      console.log('discovered device information service');
-
-      deviceInformationService.discoverCharacteristics(['2a19'], function(error, characteristics) {
-          var batteryLevelCharacteristic = characteristics[0];
-          console.log('discovered manufacturer '+characteristics);
-          console.log('discovered manufacturer name characteristic');
-          batteryLevelCharacteristic.read(function () {
-
-          });
-          batteryLevelCharacteristic.on('read', function(data, isNotification) {
-              console.log('battery level is now: ', data.readUInt8(0) + '%');
-             // peripheral.disconnect();
-          });
-      });
-  }); */
-
-
+module.exports.services = Service;
