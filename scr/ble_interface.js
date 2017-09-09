@@ -62,7 +62,6 @@ class BLEInterface {
             }
         });
 
-
         // ->  Discover
         this.ble_lib.on('discover', (peripheral) => {
             if (peripheral.address.toUpperCase() === this.address.toUpperCase()) {
