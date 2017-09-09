@@ -39,7 +39,8 @@ let Services = {};
 class Service {
 
     constructor(name){
-        this.name = name
+        this.name = name;
+        this.handles= [];
     }
 
     get name() {
@@ -52,7 +53,56 @@ class Service {
         this._name = value;
     }
 
+    add_characteristic_handle(uuid, handl){
+        if (this.handles.indexOf(uuid) === -1) {
+            this.handles[uuid] = handl;
+            // console.log('==============================>',uuid);
+        }else{
+            console.log('Error, service with ID "'+uuid+'" already exits for '+this.name+ ' service');
+        }
 
+    }
+
+    addCharacteristics(characteristics){
+        for(let i in characteristics){
+            this.add_characteristic_handle(characteristics[i].uuid, characteristics[i]);
+        }
+
+    }
+
+    enableService(){
+        if(this.service_needs_to_be_switched_on) {
+            this.handles[this.config_uuid].write(Buffer.from(['0x01']), false, function (error) {
+                if (!error) {
+                    console.log('Enabled  ' + this.name);
+
+                } else {
+                    console.log('Error');
+                }
+            }.bind(this));
+        }
+    }
+
+
+    subscribe(){
+        console.log('Subscription ',this.data_uuid);
+        this.handles[this.data_uuid].subscribe((error) => {
+            console.log('Subscribed to ' + this.name);
+            if(error){
+                console.log('ERRROR ',error);
+
+            }
+
+        });
+    }
+
+    convertData(data){
+
+    }
+
+    read(data, isNotification){
+
+    }
 }
 
 class Battery extends Service{
@@ -65,34 +115,8 @@ class Battery extends Service{
         this.period_uuid = null;
         this.service_needs_to_be_switched_on = false;
 
-        this.handles= [];
-        this._name = name;
     }
 
-    add_characteristic_handle(uuid, handl){
-        if (this.handles.indexOf(uuid) === -1) {
-            this.handles[uuid] = handl
-          //  console.log('==============================>',uuid);
-
-        }else{
-            console.log('Error, service with ID "'+uuid+'" already exits for '+this.name+ ' service');
-        }
-
-    }
-
-    enableService(){
-        if(this.service_needs_to_be_switched_on) {
-            this.handles[this.config_uuid].write(Buffer.from(['0x01']), false, function (error) {
-                if (!error) {
-                    console.log('Enabled  ' + this.name);
-                    cb();
-                } else {
-                    console.log('Error');
-                }
-            }.bind(this));
-        }
-
-    }
 
     convertData(data){
         return data.readUInt8(0);
@@ -103,78 +127,25 @@ class Battery extends Service{
        console.log('battery level is now: ', data + '%');
     }
 
-    subscribe(){
-        console.log('Subscription ',this.data_uuid);
-        this.handles[this.data_uuid].subscribe((error) => {
-            console.log('Subscribed to ' + this.name);
-
-            if(error){
-                console.log('ERRROR ',error);
-
-            }
-
-        });
-    }
-
-    addCharacteristics(characteristics){
-        for(let i in characteristics){
-            console.log('  ' + i + ' uuid: ' + characteristics[i].uuid);
-            this.add_characteristic_handle(characteristics[i].uuid, characteristics[i]);
-        }
-
-    }
-
 
 }
 
 
-class Temp extends Service{
+class Temperature extends Service{
 
     constructor(name){
         super(name);
         this.service_uuid = 'f000aa0004514000b000000000000000',
-            this.config_uuid = 'f000aa0204514000b000000000000000',
-            this.data_uuid = 'f000aa0104514000b000000000000000',
-            this.period_uuid = null;
+        this.config_uuid = 'f000aa0204514000b000000000000000',
+        this.data_uuid = 'f000aa0104514000b000000000000000',
+        this.period_uuid = null;
         this.service_needs_to_be_switched_on = true;
 
-        this.handles= [];
-        this._name = name;
-    }
-
-    add_characteristic_handle(uuid, handl){
-        if (this.handles.indexOf(uuid) === -1) {
-            this.handles[uuid] = handl
-         //   console.log('==============================>',uuid)
-
-        }else{
-            console.log('Error, service with ID "'+uuid+'" already exits for '+this.name+ ' service');
-        }
-
-    }
-
-    enableService(){
-        if(this.service_needs_to_be_switched_on) {
-            //console.log('this.config_uuid: ',this.config_uuid);
-            //console.log('this.handles ',this.handles);
-
-            this.handles[this.config_uuid].write(Buffer.from(['0x01']), false, function (error) {
-                if (!error) {
-                    console.log('Enabled  ' + this.name);
-
-                } else {
-                    console.log('Error');
-                }
-            }.bind(this));
-        }
     }
 
     convertData(data){
-
-
         let ambientTemperature = data.readInt16LE(2) / 128.0;
         let objectTemperature = data.readInt16LE(0) / 128.0;
-
         return [ambientTemperature, objectTemperature]
     }
 
@@ -186,24 +157,6 @@ class Temp extends Service{
         console.log('ambientTemperature = '+ ambientTemperature + '  objectTemperature = ' +objectTemperature);
     }
 
-    subscribe(){
-        console.log('Subscription ',this.data_uuid);
-        this.handles[this.data_uuid].subscribe((error) => {
-            console.log('Subscribed to ' + this.name);
-            if(error){
-                console.log('ERRROR ',error);
-
-            }
-
-        });
-    }
-
-    addCharacteristics(characteristics){
-        for(let i in characteristics){
-            this.add_characteristic_handle(characteristics[i].uuid, characteristics[i]);
-        }
-    }
-
 }
 
 
@@ -212,47 +165,13 @@ class Luxometer extends Service{
     constructor(name){
         super(name);
         this.service_uuid = 'f000aa7004514000b000000000000000',
-            this.config_uuid = 'f000aa7204514000b000000000000000',
-            this.data_uuid = 'f000aa7104514000b000000000000000',
-            this.period_uuid = 'f000aa7304514000b000000000000000';
+        this.config_uuid = 'f000aa7204514000b000000000000000',
+        this.data_uuid = 'f000aa7104514000b000000000000000',
+        this.period_uuid = 'f000aa7304514000b000000000000000';
         this.service_needs_to_be_switched_on = true;
-
-        this.handles= [];
-        this._name = name;
-    }
-
-    add_characteristic_handle(uuid, handl){
-        if (this.handles.indexOf(uuid) === -1) {
-            this.handles[uuid] = handl;
-           // console.log('==============================>',uuid);
-
-        }else{
-            console.log('Error, service with ID "'+uuid+'" already exits for '+this.name+ ' service');
-        }
-
-    }
-
-    enableService(){
-        if(this.service_needs_to_be_switched_on) {
-           // console.log('this.config_uuid: ',this.config_uuid);
-          //  console.log('this.handles ',this.handles);
-
-            this.handles[this.config_uuid].write(Buffer.from(['0x01']), false, function (error) {
-                if (!error) {
-                    console.log('Enabled  ' + this.name);
-
-                } else {
-                    console.log('Error');
-                }
-            }.bind(this));
-        }
     }
 
     convertData(data){
-       // console.log('data: ', data);
-       // console.log('data.length: ', data.length);
-        //console.log('JSON.stringify(bufffer) ', JSON.stringify(data));
-
         var rawLux = data.readUInt16LE(0);
 
         var exponent = (rawLux & 0xF000) >> 12;
@@ -270,32 +189,13 @@ class Luxometer extends Service{
         console.log('LUX IS 0000>>> = '+ lux);
     }
 
-    subscribe(){
-        console.log('Subscription ',this.data_uuid);
-        this.handles[this.data_uuid].subscribe((error) => {
-            console.log('Subscribed to ' + this.name);
-
-            if(error){
-                console.log('ERRROR ',error);
-
-            }
-
-
-        });
-    }
-
-    addCharacteristics(characteristics){
-        for(let i in characteristics){
-            this.add_characteristic_handle(characteristics[i].uuid, characteristics[i]);
-        }
-
-    }
-
 }
 
-Services.battery = Battery;
-Services.temp = Temp;
-Services.lux = Luxometer;
+Services.Battery = Battery;
+Services.Temperature = Temperature;
+Services.Luxometer = Luxometer;
+
+module.exports.services = Services;
 
 /*  peripheral.discoverServices(['180f'], function(error, services) {
       var deviceInformationService = services[0];
@@ -316,4 +216,3 @@ Services.lux = Luxometer;
   }); */
 
 
-module.exports.services = Services;

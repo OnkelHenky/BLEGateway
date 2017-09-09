@@ -1,5 +1,5 @@
 const BLEInterface = require('../ble_interface');
-const Services = require('../services/service').services;
+const Service = require('../services/service').services;
 /**
  * Class to cover all functions to connect to a BLE device.
  */
@@ -7,19 +7,16 @@ class TISensortag extends BLEInterface{
 
     constructor (address){
         super(address);
-        this.serviceMap = new Map();
-
-/*
-        this.serviceMap.set('Battery', new Services.battery('Battery'));
-        this.serviceMap.set('Temperature', new Services.temp('Temperature'));
-        this.serviceMap.set('Luxometer', new Services.lux('Luxometer'));*/
+        /*   this.serviceMap = new Map();
 
 
-        console.log('test: size  ', this.serviceMap.size);
+           this.serviceMap.set('Battery', new Services.battery('Battery'));
+           this.serviceMap.set('Temperature', new Services.temp('Temperature'));
+           this.serviceMap.set('Luxometer', new Services.lux('Luxometer'));*/
 
-        this.addService('180f', new Services.battery('Battery'));
-        this.addService('f000aa0004514000b000000000000000', new Services.temp('Temperature'));
-        this.addService('f000aa7004514000b000000000000000', new Services.lux('Luxometer'));
+        this.addService('180f', new Service.Battery('Battery'));
+        this.addService('f000aa0004514000b000000000000000', new Service.Temperature('Temperature'));
+        this.addService('f000aa7004514000b000000000000000', new Service.Luxometer('Luxometer'));
     }
 
 
