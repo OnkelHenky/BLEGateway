@@ -7,9 +7,9 @@ const app = express();
 var values ={};
 
 app.get('/', function (req, res) {
-    console.log('REQUEST ======================>');
-    let values = JSON.stringify(values);
-    res.send(myJsonString)
+    console.log('REQUEST ======================>',values);
+    let BLEvalues = JSON.stringify(values);
+    res.send(BLEvalues)
 
 });
 
