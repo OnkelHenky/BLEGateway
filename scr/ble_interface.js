@@ -96,12 +96,14 @@ class BLEInterface {
 
                     }else{
                         console.log('Connected to: ' + this.peripheral.advertisement.localName);
-                        this.enableServices(this.peripheral);
+
                     }
 
             });
 
-            this.peripheral.connect();
+            this.peripheral.connect(()=>{
+                this.enableServices(this.peripheral);
+            });
             }
 
         });
