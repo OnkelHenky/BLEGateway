@@ -28,15 +28,31 @@ class BLEInterface {
         return this._peripheral;
     }
 
+    discconect(){
+        this.peripheral.disconnect(function(error) {
+            if(error){
+                console.log('Error', error);
+            }
+            console.log('DISCONNECTED from peripheral: ' + this.peripheral.uuid);
+
+        }.bind(this));
+    }
+
     /**
      *
      * @param value
      */
     set peripheral(value) {
         this._peripheral = value;
-        this.peripheral.connect();
-    }
+     /*   this.peripheral.connect(function(error) {
+            if(error){
+                console.log('Error', error);
 
+            }
+            console.log('connected to peripheral: ' + this.peripheral.uuid);
+
+        }.bind(this)); */
+    }
 
     get ble_lib() {
         return this._ble_lib;
@@ -59,22 +75,34 @@ class BLEInterface {
                 console.log('Start Scanning');
             } else {
                 this._ble_lib.stopScanning(serviceUUIDs);
+                this.peripheral.discconect();
             }
         });
 
         // ->  Discover
         this.ble_lib.on('discover', (peripheral) => {
-            if (peripheral.address.toUpperCase() === this.address.toUpperCase()) {
+            console.log('this.address.toUpperCase() ->',peripheral.address.toUpperCase());
+            console.log('this.address.localName() ->',peripheral.advertisement.localName);
+            //if (peripheral.address.toUpperCase() === this.address.toUpperCase()) {
+            if (peripheral.advertisement.localName === 'EGO_FCx') { /* ON OSX address will be unknown if device was not connect before*/
                 console.log('Target device found, establish connection');
                 this._ble_lib.stopScanning();
                 this.peripheral = peripheral;
-                // ->  Connect
-            this.peripheral.on('connect', () => {
-                    console.log('Connected to: ' + this.peripheral.advertisement.localName);
-                    this.enableServices(this.peripheral);
-                });
-            }
 
+                // ->  Connect
+            this.peripheral.on('connect', (error) => {
+                    if(error){
+                        console.log('Error', error);
+
+                    }else{
+                        console.log('Connected to: ' + this.peripheral.advertisement.localName);
+                        this.enableServices(this.peripheral);
+                    }
+
+            });
+
+            this.peripheral.connect();
+            }
 
         });
     }
@@ -104,10 +132,10 @@ class BLEInterface {
                     }
 
                     currentService.addCharacteristics(characteristics);
-                    currentService.enableService();
-                    currentService.subscribe();
+                    currentService.enableService(currentService);
+                    currentService.subscribe(currentService);
 
-                    let characteristicHandle = characteristics[0];
+                    let characteristicHandle = characteristics[1];
 
                     characteristicHandle.on('read', currentService.read.bind(currentService));
                     characteristicHandle.read(()=> {});

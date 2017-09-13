@@ -25,42 +25,76 @@ class GenericService {
     }
 
     add_characteristic_handle(uuid, handl){
-        if (this.handles.indexOf(uuid) === -1) {
-            this.handles[uuid] = handl;
-            // console.log('==============================>',uuid);
-        }else{
-            console.log('Error, service with ID "'+uuid+'" already exits for '+this.name+ ' service');
-        }
-
-    }
-
-    addCharacteristics(characteristics){
-        for(let i in characteristics){
-            this.add_characteristic_handle(characteristics[i].uuid, characteristics[i]);
-        }
-
-    }
-
-    enableService(){
-        if(this.service_needs_to_be_switched_on) {
-            this.handles[this.config_uuid].write(Buffer.from(['0x01']), false, function (error) {
-                if (!error) {
-                    console.log('Enabled  ' + this.name);
-
-                } else {
-                    console.log('Error');
-                }
-            }.bind(this));
-        }
-    }
-
-
-    subscribe(){
-        this.handles[this.data_uuid].subscribe((error) => {
-            console.log('Subscribed to ' + this.name);
-            if(error){
-                console.log('ERRROR ',error);
+        let self = this;
+        return new Promise(function (resolve, reject) {
+            if (self.handles.indexOf(uuid) === -1) {
+                self.handles[uuid] = handl;
+                console.log('Added characteristic_handle : ',uuid);
+                resolve(self);
+            }else{
+                reject('\'Error, service with ID "\'+uuid+\'" already exits for \'+this.name+ \' service\'');
             }
+        });
+    }
+
+    /**
+     *
+     * @param characteristics
+     * @returns {Promise}
+     */
+    addCharacteristics(characteristics){
+    let self = this;
+     return new Promise(function (resolve, reject) {
+            for(let i in characteristics){
+                self.add_characteristic_handle(characteristics[i].uuid, characteristics[i]);
+              /*  catch((error)=>{
+                    console.log('Error, service with ID "'+uuid+'" already exits for '+self.name+ ' service');
+                    reject();
+                }); */
+            }
+            resolve(self);
+        });
+    }
+
+    /**
+     *
+     * @returns {Promise}
+     */
+    enableService(service){
+        let self = service;
+        return new Promise(function(resolve, reject){
+            if(self.service_needs_to_be_switched_on) {
+                this.handles[self.config_uuid].write(Buffer.from(['0x01']), false, function (error) {
+                    if (!error) {
+                        console.log('Enabled  ' + self.name);
+                        resolve(self);
+                    } else {
+                        console.log('Error');
+                        reject();
+                    }
+                });
+            }else{
+                resolve(self);
+            }
+        });
+    }
+
+    /**
+     *
+     * @returns {Promise}
+     */
+    subscribe(service){
+        let self = service;
+        return  new Promise(function(resolve, reject){
+            self.handles[self.data_uuid].subscribe((error) => {
+                if(error){
+                    console.log('ERRROR ',error);
+                    reject();
+                }else{
+                    console.log('Subscribed to ', self.name);
+                    resolve(self);
+                }
+            });
         });
     }
 
@@ -98,8 +132,6 @@ class Battery extends GenericService{
        console.log('battery level is now: ', data + '%');
        this.values[this._name] = data
     }
-
-
 }
 
 /**
@@ -141,9 +173,9 @@ class Luxometer extends GenericService{
 
     constructor(name,values){
         super(name,values);
-        this.service_uuid = 'f000aa7004514000b000000000000000',
-        this.config_uuid = 'f000aa7204514000b000000000000000',
-        this.data_uuid = 'f000aa7104514000b000000000000000',
+        this.service_uuid = 'f000aa7004514000b000000000000000';
+        this.config_uuid = 'f000aa7204514000b000000000000000';
+        this.data_uuid = 'f000aa7104514000b000000000000000';
         this.period_uuid = 'f000aa7304514000b000000000000000';
         this.service_needs_to_be_switched_on = true;
     }
@@ -171,3 +203,4 @@ Service.Temperature = Temperature;
 Service.Luxometer = Luxometer;
 
 module.exports.services = Service;
+module.exports.GenericService = GenericService;
