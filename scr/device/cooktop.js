@@ -10,17 +10,23 @@ class Cooktop extends BLEInterface{
         super(address);
         this.addService('180a', new CooktopService.Vendor('Vendor',values));
         this.addService('8520510026dd913f4b8fee97799e304f', new CooktopService.CooktopStatus('CooktopStatus',values));
+       this.addService('8520520026dd913f4b8fee97799e304f', new CooktopService.CooktopAction('CooktopAction',values));
     }
 
+    write(){
+        this.services['8520520026dd913f4b8fee97799e304f'].write();
+    }
     /**
      *
      * @param peripheral
      */
     enableServices(peripheral){
         let self = this;
+        console.log('sdsdsdsddsd');
+
         peripheral.discoverServices(this.getServiceUUIDs(), function(error, services) {
             let serviceIndex = 0;
-            console.log('Discovered the following services ');
+            console.log('Discovered the following services ',services);
             async.whilst(
                 function () {
                     //console.log('services.length :',serviceIndex);
@@ -66,17 +72,23 @@ class Cooktop extends BLEInterface{
 
                             },
                             function(error) {
-                                currentService.subscribe(currentService)
-                                .then(()=>{
-                                    let characteristicHandle = characteristics[1];
-                                    characteristicHandle.on('read', currentService.read.bind(currentService));
-                                    characteristicHandle.read(()=> {});
-                                    if(error){console.log('Error :',error);}
-                                    serviceIndex++;
-                                    callback();
-                                }).catch((error)=>{
+                                if(error){
                                     console.log('Error', error);
-                                });
+                                }else{
+                                    currentService.subscribe(currentService)
+                                        .then(()=>{
+                                            let characteristicHandle = characteristics[1];
+                                            characteristicHandle.on('read', currentService.read.bind(currentService));
+                                            characteristicHandle.read(()=> {});
+                                            if(error){console.log('Error :',error);}
+                                            serviceIndex++;
+                                            callback();
+                                            currentService.write({});
+                                        }).catch((error)=>{
+                                        console.log('Error', error);
+                                    });
+                                }
+
                             }
                         );
                     });
@@ -84,7 +96,7 @@ class Cooktop extends BLEInterface{
                 function (err) {
                     if(err)console.log('Error',err);
                     console.log('================> All set up, waiting for stuff to happen <================');
-                    //   peripheral.disconnect();
+                    //peripheral.disconnect();
                 }
             );
 

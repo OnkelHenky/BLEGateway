@@ -74,6 +74,7 @@ class BLEInterface {
                 this._ble_lib.startScanning(serviceUUIDs);
                 console.log('Start Scanning');
             } else {
+             //   console.log('stae 0000>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',state);
                 this._ble_lib.stopScanning(serviceUUIDs);
                 this.peripheral.discconect();
             }
@@ -84,7 +85,7 @@ class BLEInterface {
             console.log('this.address.toUpperCase() ->',peripheral.address.toUpperCase());
             console.log('this.address.localName() ->',peripheral.advertisement.localName);
             //if (peripheral.address.toUpperCase() === this.address.toUpperCase()) {
-            if (peripheral.advertisement.localName === 'EGO_FCx') { /* ON OSX address will be unknown if device was not connect before*/
+            if (peripheral.advertisement.localName === this.address.toUpperCase() || peripheral.address.toUpperCase() === this.address.toUpperCase()) { /* ON OSX address will be unknown if device was not connect before*/
                 console.log('Target device found, establish connection');
                 this._ble_lib.stopScanning();
                 this.peripheral = peripheral;
@@ -100,8 +101,16 @@ class BLEInterface {
                     }
 
             });
-
+            peripheral.once('disconnect', function() {
+                   // console.log('Byebyey');
+                });
+                peripheral.once('connect', function() {
+                  //  console.log('conect bybybs');
+                });
+               // console.log('hhfhfrrrrrrrrrryuyuyuyuyuyhfhfh');
             this.peripheral.connect(()=>{
+               // console.log('hhfhfhfhfh');
+
                 this.enableServices(this.peripheral);
             });
             }
@@ -137,7 +146,7 @@ class BLEInterface {
                     currentService.enableService(currentService);
                     currentService.subscribe(currentService);
 
-                    let characteristicHandle = characteristics[1];
+                    let characteristicHandle = characteristics[0];
 
                     characteristicHandle.on('read', currentService.read.bind(currentService));
                     characteristicHandle.read(()=> {});

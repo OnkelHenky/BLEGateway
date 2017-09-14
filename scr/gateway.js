@@ -36,6 +36,9 @@ class BLEGateway {
         }
     }
 
+    write(){
+        this._BLE_interface.write();
+    }
     powerOn(){
      this.ble_lib.state = 'poweredOn';//Switching on the gateway.
     }

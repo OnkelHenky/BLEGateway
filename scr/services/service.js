@@ -10,7 +10,7 @@ class GenericService {
 
     constructor(name,values){
         this.name = name;
-        this.handles= [];
+        this.handles= {};
         this.values = values
     }
 
@@ -27,8 +27,8 @@ class GenericService {
     add_characteristic_handle(uuid, handl){
         let self = this;
         return new Promise(function (resolve, reject) {
-            if (self.handles.indexOf(uuid) === -1) {
-                self.handles[uuid] = handl;
+            if (self.handles[handl.uuid] === undefined) {
+                self.handles[handl.uuid] = handl;
                 console.log('Added characteristic_handle : ',uuid);
                 resolve(self);
             }else{
@@ -46,11 +46,7 @@ class GenericService {
     let self = this;
      return new Promise(function (resolve, reject) {
             for(let i in characteristics){
-                self.add_characteristic_handle(characteristics[i].uuid, characteristics[i]);
-              /*  catch((error)=>{
-                    console.log('Error, service with ID "'+uuid+'" already exits for '+self.name+ ' service');
-                    reject();
-                }); */
+                    self.handles[characteristics[i].uuid] = characteristics[i];
             }
             resolve(self);
         });
@@ -64,7 +60,7 @@ class GenericService {
         let self = service;
         return new Promise(function(resolve, reject){
             if(self.service_needs_to_be_switched_on) {
-                this.handles[self.config_uuid].write(Buffer.from(['0x01']), false, function (error) {
+                self.handles[self.config_uuid].write(Buffer.from(['0x01']), false, function (error) {
                     if (!error) {
                         console.log('Enabled  ' + self.name);
                         resolve(self);
