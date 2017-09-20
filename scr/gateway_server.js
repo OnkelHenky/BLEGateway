@@ -17,6 +17,7 @@ app.get('/', function (req, res) {
 
 app.listen(3030, function () {
     console.log('BLE Gateway Server running on port 3030');
+    console.log('SHH WORKs !!!');
     GATEWAY.BLE_interface = new TIInterface("24:71:89:BC:1D:01",values); // SensorTag
    // GATEWAY.BLE_interface = new Cooktop("38:B5:BD:45:67:89",values); // Cooktop
     GATEWAY.powerOn();
